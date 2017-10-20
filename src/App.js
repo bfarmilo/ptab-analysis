@@ -7,7 +7,8 @@ import Charts from './Charts';
 import MultiEdit from './MultiEdit';
 import './App.css';
 
-const baseUrl = "https://ptab-server.azurewebsites.net";
+//const baseUrl = "https://ptab-server.azurewebsites.net";
+const baseUrl = "https://ptab-mongo-bfarmilo.c9users.io";
 const userID = Math.round(Math.random() * 1000);
 
 class App extends Component {
@@ -23,7 +24,7 @@ class App extends Component {
     totalClaims: [],
     uniqueClaims: [],
     chartData: [],
-    chartTitle: ['all', 'patentownertype:lawfirm'],
+    chartTitle: ['all', 'PatentOwner.type:npe'],
     mode: 'chart',
     goButton: true,
     cursor: 0,

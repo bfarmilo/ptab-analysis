@@ -3,7 +3,7 @@ import { VictoryPie, VictoryTheme, VictoryContainer, VictoryLabel } from 'victor
 
 const PieChart = (props:{
   total:number,
-  data:Array<{type: string, count:number}>,
+  data:Array<{type: string, score:number, count:number}>,
   viewSize: number,
   availableTables:Array<string>,
   handleNewSelection: (() => Event),
@@ -21,7 +21,7 @@ const PieChart = (props:{
               theme={VictoryTheme.material}
               data={
                 props.data.map(bin => {
-                  return { x: bin.type.match(/_(.*)/)[1], y: bin.count, label: `${bin.type.match(/_(.*)/)[1]}\n${Math.round(bin.count / props.total * 1000) / 10}%` }
+                  return { x: bin.score, y: bin.count, label: `${bin.type}\n${Math.round(bin.count / props.total * 1000) / 10}%` }
                 })
               }
               style={{
@@ -38,7 +38,7 @@ const PieChart = (props:{
             <tbody>
               <tr>
                 {props.data.map(item => (
-                  <th key={item.type}>{item.type.match(/_(.*)/)[1]}</th>
+                  <th key={item.type}>{item.type}</th>
                 ))}
               </tr>
               <tr>
