@@ -14,8 +14,8 @@ const userID = Math.round(Math.random() * 1000);
 class App extends Component {
   state = {
     records: [],
-    field: "PatentOwner",
-    value: "Personalized",
+    field: "PatentOwner.type",
+    value: "npe",
     table: "FWDStatus:unpatentable",
     fields: [],
     tables: [],

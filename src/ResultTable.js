@@ -27,18 +27,18 @@ const ResultTable = (props: {
         </thead>
         <tbody>
           {props.records.map(record =>
-            <tr key={record.ID}>
+            <tr key={record._id}>
               <td>{record.IPR}</td>
-              <td>{record.DateFiled}</td>
+              <td>{record.DateFiled.split('T')[0]}</td>
               <td>{record.Status}</td>
               <td>{record.FWDStatus}</td>
-              <td>{record.Petitioner}</td>
-              <td>{record.PatentOwner}</td>
+              <td>{record.Petitioner.map(item => item.name)}</td>
+              <td>{record.PatentOwner.map(item => item.name)}</td>
               <td>{record.Patent} Clm {record.Claim}</td>
               <td>{record.MainUSPC}</td>
-              <td>{record.Instituted === '1' ? 'x' : ''}</td>
-              <td>{record.Invalid === '1' ? 'x' : ''}</td>
-              <td>{record.survivalStatus}</td>
+              <td>{record.Instituted ? 'x' : ''}</td>
+              <td>{record.Invalid ? 'x' : ''}</td>
+              <td>{record.survivalStatus.result}</td>
             </tr>
           )}
         </tbody>
