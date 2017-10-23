@@ -3,10 +3,7 @@
 import React from 'react';
 
 const ControlArea = (props: {
-  value: string,
-  table: string,
-  field: string,
-  tables: Array<string>,
+  query: Array<{field:string, value: string}>,
   fields: Array<string>,
   count: number,
   totalCount: number,
@@ -43,27 +40,28 @@ const ControlArea = (props: {
         <div className="TableControls">
           <div>
             <span className="customdropdown">
-              <select name="ChooseField" id="fieldselect" onChange={props.selectField} value={props.field}>
+              <select name="ChooseField0" id="field_0" onChange={props.setValue} value={props.query[0].field}>
                 {props.fields.map(val => (
-                  <option key={`ID_${val}`} value={val}>
+                  <option key={`ID0_${val}`} value={val}>
                     {val}
                   </option>
                 ))
                 }
               </select>
             </span> =
-            <input className="custominput" name="ChooseValue" id="valueselect" onChange={props.setValue} value={props.value} />
-            in
+            <input className="custominput" name="ChooseValue0" id="value_0" onChange={props.setValue} value={props.query[0].value} />
+            AND
             <span className="customdropdown">
-              <select name="ChooseTable" id="tableselect" onChange={props.selectTable} value={props.table}>
-                {props.tables.map(val => (
-                  <option key={`ID_${val}`} value={val}>
+              <select name="ChooseField1" id="field_1" onChange={props.setValue} value={props.query[1].field}>
+                {props.fields.map(val => (
+                  <option key={`ID1_${val}`} value={val}>
                     {val}
                   </option>
                 ))
                 }
               </select>
-            </span>
+            </span> =
+            <input className="custominput" name="ChooseValue1" id="value_1" onChange={props.setValue} value={props.query[1].value} />
             <button onClick={props.newQuery}>{props.goButton ? 'Go' : 'More'}</button>
           </div>
           <div>

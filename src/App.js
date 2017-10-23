@@ -9,13 +9,22 @@ import './App.css';
 
 //const baseUrl = "https://ptab-server.azurewebsites.net";
 const baseUrl = "https://ptab-mongo-bfarmilo.c9users.io";
+const headers = new Headers();
+headers.set('Content-Type', 'application/json');
 const userID = Math.round(Math.random() * 1000);
 
 class App extends Component {
   state = {
     records: [],
-    field: "PatentOwner.type",
-    value: "npe",
+    query: [
+      {
+        field: "PatentOwner.type",
+        value: "npe"
+      }, {
+        field: "FWDStatus",
+        value: "unpatentable"
+      }
+    ],
     table: "FWDStatus:unpatentable",
     fields: [],
     tables: [],
@@ -45,7 +54,10 @@ class App extends Component {
     fetch(`${baseUrl}/tables?user=${userID}`)
       .then(res => res.json())
       .then(tables => this.setState({ tables }))
-    fetch(`${baseUrl}/run?user=${userID}&field=${this.state.field}&value=${this.state.value}&cursor=${this.state.cursor}&table=${encodeURIComponent(this.state.table)}`)
+    fetch(`${baseUrl}/run`, {
+      method: 'post',
+      body: JSON.stringify(Object.assign({ userID, cursor: this.state.cursor, query: this.state.query }))
+    })
       .then(res => res.json())
       .then(records => {
         this.setState({ cursor: records.cursor, count: records.count, records: records.data, totalCount: records.totalCount })
@@ -106,9 +118,25 @@ class App extends Component {
     this.setState({ field: event.target.value, goButton: true });
   }
 
+  // updateQuery mutates one object of a query array.
+  // index -> the index to change
+  // target -> which field to change (field or value)
+  // newValue -> the new Value of the target
+  updateQuery = (index, target, newValue) => {
+    return this.state.query.map((item, idx) => {
+      const keepfield = [target === 'field' ? 'value' : 'field'];
+      const keepval = [target === 'field' ? item.value : item.field];
+      if (idx === index) {
+        return { [target]: newValue, [keepfield]: keepval.pop() };
+      }
+      return item;
+    })
+  }
+
   setValue = (event) => {
-    console.log('new value %s', event.target.value);
-    this.setState({ value: event.target.value, goButton: true });
+    const field = event.target.id.split("_");
+    console.log('%s #%d reporting new value %s', field[0], parseInt(field[1],10), event.target.value);
+    this.setState({ query: this.updateQuery(parseInt(field[1], 10), field[0], event.target.value), goButton: true });
   }
 
   getDetailTable = () => {
@@ -134,9 +162,6 @@ class App extends Component {
   multiEdit = () => {
     fetch(`${baseUrl}/multiedit?user=${userID}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
       body: JSON.stringify({ rows: ['66804'], field: 'PatentOwner', newValue: 'Personalized Media Communications (npe)' })
     })
       .then(res => res.json())
@@ -147,7 +172,10 @@ class App extends Component {
     this.setState({ spinner: true });
     const cursor = this.state.goButton ? 0 : this.state.cursor;
     console.log('request for new query of %s where %s=%s', this.state.table, this.state.field, this.state.value)
-    fetch(`${baseUrl}/run?user=${userID}&field=${this.state.field}&value=${this.state.value}&cursor=${cursor}&table=${encodeURIComponent(this.state.table)}`)
+    fetch(`${baseUrl}/run`, {
+      method: 'post',
+      body: JSON.stringify(Object.assign({ userID, cursor: this.state.cursor, query: this.state.query }))
+    })
       .then(res => res.json())
       .then(records => {
         this.setState(oldState => {
@@ -199,11 +227,8 @@ class App extends Component {
     return (
       <div className="App">
         <ControlArea
-          value={this.state.value}
-          tables={this.state.tables}
+          query={this.state.query}
           fields={this.state.fields}
-          table={this.state.table}
-          field={this.state.field}
           count={this.state.count}
           totalCount={this.state.totalCount}
           mode={this.state.mode}

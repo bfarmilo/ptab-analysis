@@ -3,7 +3,7 @@ import { VictoryPie, VictoryTheme, VictoryContainer, VictoryLabel } from 'victor
 
 const PieChart = (props:{
   total:number,
-  data:Array<{type: string, score:number, count:number}>,
+  data:Array<survivalStats>,
   viewSize: number,
   availableTables:Array<string>,
   handleNewSelection: (() => Event),
