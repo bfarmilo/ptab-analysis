@@ -6,7 +6,7 @@ export type resultSet = {
   FWDStatus: string,
   Petitioner: Array<{name:string, type:string}>
   PatentOwner: Array<{name:string, type:string}>,
-  Patent: number,
+  Patent: string,
   Claim: number,
   MainUSPC: string,
   Instituted: boolean,
