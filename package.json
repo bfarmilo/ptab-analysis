@@ -19,5 +19,5 @@
     "eject": "react-scripts eject"
   },
   "proxy": "http://localhost:8080",
-  "homepage": "https://ptab-analysis-bfarmilo.c9users.io/ptab-build/index.html"
+  "homepage": "https://ptab-analysis-bfarmilo.c9users.io/ptab-build"
 }
