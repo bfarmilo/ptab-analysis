@@ -27,13 +27,17 @@ class App extends Component {
     ],
     table: "FWDStatus:unpatentable",
     fields: [],
-    tables: [],
+    chartFields: [],
+    currentQuery: [
+      {field: 'all', value:''}, 
+      {field: 'PatentOwner.type', value:'npe'}
+    ],
+    chartValues: [],
+    chartData: [],
     count: 0,
     totalCount: 0,
     totalClaims: [],
     uniqueClaims: [],
-    chartData: [],
-    chartTitle: ['all', 'PatentOwner.type:npe'],
     mode: 'chart',
     goButton: true,
     cursor: 0,
@@ -53,7 +57,16 @@ class App extends Component {
       .then(fields => this.setState({ fields }))
     fetch(`${baseUrl}/tables?user=${userID}`)
       .then(res => res.json())
-      .then(tables => this.setState({ tables }))
+      .then(chartFields => this.setState({ chartFields }))
+    fetch(`${baseUrl}/chartvalues`, {
+      method: 'post',
+      body: JSON.stringify(Object.assign({
+        userID, 
+        query: this.state.currentQuery
+      }))
+    })
+      .then(res => res.json())
+      .then(chartValues => this.setState({ chartValues }))
     fetch(`${baseUrl}/run`, {
       method: 'post',
       body: JSON.stringify(Object.assign({ userID, cursor: this.state.cursor, query: this.state.query }))
@@ -82,11 +95,11 @@ class App extends Component {
   }
 
   selectChart = (event) => {
-    console.log('changing %s to %s, chart %d', event.target.name, event.target.value, parseInt(event.target.id, 10) - 1);
+    console.log('updating chart %d', parseInt(event.target.id, 10) - 1);
     // set chartTitle to update the screen and the spinner
     const newTitle = this.state.chartTitle.map((item, index) => {
       let changeIdx = parseInt(event.target.id, 10) <= 2 ? 0 : 1;
-      if (changeIdx === index) return event.target.value;
+      if (changeIdx === index) return this.state.chartValue[changeIdx];
       return item;
     });
     this.setState({ spinner: true, chartTitle: newTitle });
@@ -135,7 +148,7 @@ class App extends Component {
 
   setValue = (event) => {
     const field = event.target.id.split("_");
-    console.log('%s #%d reporting new value %s', field[0], parseInt(field[1],10), event.target.value);
+    console.log('%s #%d reporting new value %s', field[0], parseInt(field[1], 10), event.target.value);
     this.setState({ query: this.updateQuery(parseInt(field[1], 10), field[0], event.target.value), goButton: true });
   }
 
@@ -202,14 +215,15 @@ class App extends Component {
     const viewArea = this.state.mode === 'table'
       ? (<ResultTable records={this.state.records} />)
       : (<Charts
-        disableDetails={this.state.disableDetails}
-        totalClaims={this.state.totalClaims}
-        uniqueClaims={this.state.uniqueClaims}
         chartData={this.state.chartData}
         details={this.state.details}
-        availableTables={this.state.tables}
-        selectChart={this.selectChart}
-        currentSelection={[].concat(...this.state.chartTitle.map(item => [item, item]))}
+        handleChartClick={null} // TODO
+        availableFields={this.state.chartFields}
+        currentQuery={this.state.currentQuery}
+        updateChart={this.selectChart}
+        availableValues={this.state.chartValues}
+        selectQuery={this.selectChartQuery}
+        disableDetails={this.state.disableDetails}
       />)
     const logo = this.state.spinner ? (
       <modal className="logo-background">
