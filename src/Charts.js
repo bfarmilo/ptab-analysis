@@ -42,6 +42,8 @@ const Charts = (props: {
       </tbody>
     </table>
   </div>) : <div />;
+  console.log('got available values', props.availableValues);
+  console.log(props.chartData.map(item => props.availableValues[item.index]));
   return (
     <div className="ChartArea">
       <div className="SurvivalCharts">
@@ -57,7 +59,7 @@ const Charts = (props: {
                 ))}
               </select>
             </span>
-            {item.title !== 'all' ?
+            {!item.title.includes('all') ?
               <span className="customdropdown">
                 <select id={`value${item.title}_${item.index}`} onChange={props.selectChartQuery} value={props.currentQuery[item.index].value}>
                   {props.availableValues[item.index].map(val => (
@@ -68,7 +70,7 @@ const Charts = (props: {
                 </select>
               </span>
               :
-              ' '
+              <span />
             }
             <button id={`${item.index}_${item.title}`} onClick={props.updateChart}>Go</button>
             <PieChart

@@ -58,19 +58,9 @@ class App extends Component {
     fetch(`${baseUrl}/tables?user=${userID}`)
       .then(res => res.json())
       .then(chartFields => this.setState({ chartFields }))
-    fetch(`${baseUrl}/chartvalues`, {
-      method: 'post',
-      body: JSON.stringify(Object.assign({
-        userID,
-        query: this.state.currentQuery
-      }))
-    })
-      .then(res => res.json())
-      .then(result => [].concat(...result.map(item => Object.values(item))))
-      .then(chartValues => this.setState({ chartValues }))
     fetch(`${baseUrl}/run`, {
       method: 'post',
-      body: JSON.stringify(Object.assign({ userID, cursor: this.state.cursor, query: this.state.query }))
+      body: JSON.stringify(Object.assign({ user: userID, cursor: this.state.cursor, query: this.state.query }))
     })
       .then(res => res.json())
       .then(records => {
@@ -94,9 +84,21 @@ class App extends Component {
             .concat([{ title: `${item.title} - unique only`, index, count: item.countUnique, data: item.survivalUnique }])
         }))
         console.log('got initial chart Data\n%j', chartData);
-        this.setState({ chartData, spinner: false });
+        return Promise.all(this.state.currentQuery.map(item => {
+          return fetch(`${baseUrl}/chartvalues`, {
+            method: 'post',
+            body: JSON.stringify(Object.assign({
+              user: userID,
+              query: item
+            }))
+          })
+            .then(res => res.json())
+        }))
+          .then(result => [].concat(...result.map(item => Object.values(item))))
+          .then(chartValues => this.setState({ chartValues, chartData, spinner: false }))
       })
   }
+
 
   // Charts -- not implemented yet TODO
   handleChartClick = (event) => {
@@ -212,7 +214,7 @@ class App extends Component {
     console.log('request for new query of %s where %s=%s', this.state.table, this.state.field, this.state.value)
     fetch(`${baseUrl}/run`, {
       method: 'post',
-      body: JSON.stringify(Object.assign({ userID, cursor: this.state.cursor, query: this.state.query }))
+      body: JSON.stringify(Object.assign({ user: userID, cursor: this.state.cursor, query: this.state.query }))
     })
       .then(res => res.json())
       .then(records => {
