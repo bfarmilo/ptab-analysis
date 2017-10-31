@@ -42,8 +42,8 @@ const Charts = (props: {
       </tbody>
     </table>
   </div>) : <div />;
-  console.log('got available values', props.availableValues);
-  console.log(props.chartData.map(item => props.availableValues[item.index]));
+  // console.log('got available values', props.availableValues);
+  // console.log(props.chartData.map(item => props.availableValues[item.index]));
   return (
     <div className="ChartArea">
       <div className="SurvivalCharts">
@@ -51,7 +51,7 @@ const Charts = (props: {
           <div className="SingleChart" key={`chart${item.index}_${item.title}`}>
             <h3>{item.title}</h3>
             <span className="customdropdown">
-              <select  id={`field${item.title}_${item.index}`} onChange={props.selectChartQuery} value={props.currentQuery[item.index].field}>
+              <select  name={'field'} id={`${item.title}_${item.index}`} onChange={props.selectChartQuery} value={props.currentQuery[item.index].field}>
                 {props.availableFields.map(val => (
                   <option key={`ID_${val}`} value={val}>
                     {val}
@@ -59,9 +59,9 @@ const Charts = (props: {
                 ))}
               </select>
             </span>
-            {!item.title.includes('all') ?
+            {props.currentQuery[item.index].field !== 'all' ?
               <span className="customdropdown">
-                <select id={`value${item.title}_${item.index}`} onChange={props.selectChartQuery} value={props.currentQuery[item.index].value}>
+                <select name={'value'} id={`${item.title}_${item.index}`} onChange={props.selectChartQuery} value={props.currentQuery[item.index].value}>
                   {props.availableValues[item.index].map(val => (
                     <option key={`ID_${val}`} value={val}>
                       {val}

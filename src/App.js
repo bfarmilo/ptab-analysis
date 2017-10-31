@@ -126,10 +126,10 @@ class App extends Component {
 
         const chartData = this.state.chartData.map((item, idx) => {
           // replace the element if the index matches
-          if (results.index === idx) {
-            return results.index === 0 ?
-              [{ title: `${results.title} - with Duplicates`, index: results.index, count: results.countTotal, data: results.survivalTotal }] :
-              [{ title: `${results.title} - unique only`, index: results.index, count: results.countUnique, data: results.survivalUnique }]
+          if (chartIdx === item.index) {
+            return idx === 0 || idx === 2 ?
+              { title: `${results.title} - with Duplicates`, index: chartIdx, count: results.countTotal, data: results.survivalTotal } :
+              { title: `${results.title} - unique only`, index: chartIdx, count: results.countUnique, data: results.survivalUnique }
           }
           // otherwise leave it alone
           return item;
@@ -140,11 +140,36 @@ class App extends Component {
       })
   }
 
-  //Charts
+  //Charts TODO
   selectChartQuery = (event) => {
-    // If a new field is selected, go fetch allowable values
-    // If the values are being changed, implement autocomplete
-    console.log('new %s detected for chart %d', event.target.id.split('_'));
+    const chartIndex = parseInt(event.target.id.split('_')[1], 10);
+    let newQuery = this.state.currentQuery;
+    console.log('%s change detected for chart %d', event.target.name, chartIndex);
+    if (event.target.name === 'field') {
+      // update the field record
+      newQuery[chartIndex] = { field: event.target.value, value: '' };
+      // If a new field is selected, go fetch allowable values
+      return fetch(`${baseUrl}/chartvalues`, {
+        method: 'post',
+        body: JSON.stringify(Object.assign({
+          user: userID,
+          query: newQuery[chartIndex]
+        }))
+      })
+        .then(res => res.json())
+        .then(result => this.state.chartValues.map((item, index) => {
+            if (index === chartIndex) return result[newQuery[index].field];
+            return item;
+          }))
+        .then(chartValues => {
+          console.log('fetch complete with new data %j', chartValues);
+          this.setState({ currentQuery: newQuery, chartValues });
+        })
+    } else {
+      // If the values are being changed, implement autocomplete
+      newQuery[chartIndex].value = event.target.value;
+      this.setState({ currentQuery: newQuery});
+    }
   }
 
   // Control Area
