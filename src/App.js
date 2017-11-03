@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import ControlArea from './ControlArea';
 import ResultTable from './ResultTable';
 import Charts from './Charts';
+import TimeCharts from './TimeCharts';
 import MultiEdit from './MultiEdit';
 import './App.css';
 
@@ -29,11 +30,22 @@ class App extends Component {
     fields: [],
     chartFields: [],
     currentQuery: [
-      { field: 'all', value: '' },
+      { field: 'Instituted', value: 'true' },
       { field: 'PatentOwner.type', value: 'npe' }
     ],
-    chartValues: [],
-    chartData: [],
+    chartValues: [['all'], ['all']],
+    chartData: [{
+      title: "loading...",
+      index: 0,
+      data:[{
+          type: ['default'],
+          score: 0,
+          data: [{
+              bin: 'default',
+              count: 0
+            }]
+        }]
+    }],
     count: 0,
     totalCount: 0,
     totalClaims: [],
@@ -123,10 +135,11 @@ class App extends Component {
       .then(res => res.json())
       // insert the new value into the array
       .then(results => {
-
         const chartData = this.state.chartData.map((item, idx) => {
           // replace the element if the index matches
           if (chartIdx === item.index) {
+            // chartData 0 and 2 include duplicates
+            // chartData 1 and 3 is the worst outcome for a given claim 
             return idx === 0 || idx === 2 ?
               { title: `${results.title} - with Duplicates`, index: chartIdx, count: results.countTotal, data: results.survivalTotal } :
               { title: `${results.title} - unique only`, index: chartIdx, count: results.countUnique, data: results.survivalUnique }
@@ -140,7 +153,7 @@ class App extends Component {
       })
   }
 
-  //Charts TODO
+  //Charts
   selectChartQuery = (event) => {
     const chartIndex = parseInt(event.target.id.split('_')[1], 10);
     let newQuery = this.state.currentQuery;
@@ -158,17 +171,18 @@ class App extends Component {
       })
         .then(res => res.json())
         .then(result => this.state.chartValues.map((item, index) => {
-            if (index === chartIndex) return result[newQuery[index].field];
-            return item;
-          }))
+          if (index === chartIndex) return result[newQuery[index].field];
+          return item;
+        }))
         .then(chartValues => {
           console.log('fetch complete with new data %j', chartValues);
           this.setState({ currentQuery: newQuery, chartValues });
         })
     } else {
-      // If the values are being changed, implement autocomplete
+      // If the values are being changed reflect it in the component
       newQuery[chartIndex].value = event.target.value;
-      this.setState({ currentQuery: newQuery});
+      // TODO - implement suggested results
+      this.setState({ currentQuery: newQuery });
     }
   }
 
@@ -288,6 +302,15 @@ class App extends Component {
         selectChartQuery={this.selectChartQuery}
         disableDetails={this.state.disableDetails}
       />)
+      /* (<TimeCharts
+        chartData={this.state.chartData}
+        handleChartClick={null}
+        availableFields={this.state.chartFields}
+        currentQuery={this.state.currentQuery}
+        updateChart={null}
+        availableValues={this.state.chartValues}
+        selectChartQuery={this.selectChartQuery}
+      />) */
     const logo = this.state.spinner ? (
       <modal className="logo-background">
         <div className="App-logo">

@@ -1,54 +1,24 @@
 //@flow
 
-//TODO: Need to fix for new query
-
 import React from 'react'
-import PieChart from './PieChart';
+import AreaChart from './AreaChart';
 import type survivalStats from './typedefs';
 
-const Charts = (props: {
-  chartData: Array<{ title: string, index: number, count: number, data: Array<survivalStats> }>,
-  details: Array<resultSet>,
+const TimeCharts = (props: {
+  chartData: Array<{ title: string, index: number, data: Array<survivalStats> }>,
   handleChartClick: (() => Event),
   availableFields: Array<string>,
   currentQuery: Array<{field: string, value: string}>,
   updateChart: (() => Event),
   availableValues: Array<Array<string>>,
   selectChartQuery: (() => Event),
-  disableDetails: boolean,
-  pieMode: boolean
 }) => {
-  const viewSize = 300;
-  const details = !props.disableDetails ? (<div className="DetailTable">
-    <table>
-      <tbody>
-        <tr>
-          <th>Patent: Claim</th>
-          <th>unaffected</th>
-          <th>weakened</th>
-          <th>impaired</th>
-          <th>killed</th>
-          <th>unbinned</th>
-        </tr>
-        {props.details.map(item => (
-          <tr key={`${item.ID}`}>
-            <td>{item.Patent}:{item.Claim}</td>
-            <td>{item.survivalStatus === '2_unaffected' ? `${item.IPR}` : ''}</td>
-            <td>{item.survivalStatus === '3_weakened' ? `${item.IPR}` : ''}</td>
-            <td>{item.survivalStatus === '4_impaired' ? `${item.IPR}` : ''}</td>
-            <td>{item.survivalStatus === '5_killed' ? `${item.IPR}` : ''}</td>
-            <td>{item.survivalStatus === '6_unbinned' ? `${item.IPR}` : ''}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>) : <div />;
-  // console.log('got available values', props.availableValues);
-  // console.log(props.chartData.map(item => props.availableValues[item.index]));
+  const viewSize = 800;
+  //console.log(props.chartData);
+  const item = props.chartData[0];
   return (
-    <div className="ChartArea">
+    <div /* className="ChartArea" */>
       <div className="SurvivalCharts">
-        {props.chartData.map(item => (
           <div className="SingleChart" key={`chart${item.index}_${item.title}`}>
             <h3>{item.title}</h3>
             <span className="customdropdown">
@@ -74,16 +44,14 @@ const Charts = (props: {
               <span />
             }
             <button id={`${item.index}_${item.title}`} onClick={props.updateChart}>Go</button>
-            <PieChart
-              data={item.data}
-              total={item.count}
+            <AreaChart
+              data={item.data} //{item.survivalTotal}
               viewSize={viewSize}
             />
-          </div>))}
+          </div>
       </div>
-      {details}
     </div>
   )
 }
 
-export default Charts;
+export default TimeCharts;
