@@ -13,7 +13,7 @@ const TimeCharts = (props: {
   availableValues: Array<Array<string>>,
   selectChartQuery: (() => Event),
 }) => {
-  const viewSize = 800;
+  const viewSize = 400;
   //console.log(props.chartData);
   const item = props.chartData[0];
   return (

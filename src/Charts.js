@@ -48,7 +48,10 @@ const Charts = (props: {
   return (
     <div className="ChartArea">
       <div className="SurvivalCharts">
-        {props.chartData.map(item => (
+        {props.chartData.map(item => {
+          return (item.count === 0) ?
+          (<div className="SingleChart" key={`chart${item.index}_${item.count}`} />) : 
+          (
           <div className="SingleChart" key={`chart${item.index}_${item.title}`}>
             <h3>{item.title}</h3>
             <span className="customdropdown">
@@ -79,7 +82,7 @@ const Charts = (props: {
               total={item.count}
               viewSize={viewSize}
             />
-          </div>))}
+          </div>)})}
       </div>
       {details}
     </div>

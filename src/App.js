@@ -6,6 +6,7 @@ import ResultTable from './ResultTable';
 import Charts from './Charts';
 import TimeCharts from './TimeCharts';
 import MultiEdit from './MultiEdit';
+import { init } from './config.json';
 import './App.css';
 
 //const baseUrl = "https://ptab-server.azurewebsites.net";
@@ -15,53 +16,7 @@ headers.set('Content-Type', 'application/json');
 const userID = Math.round(Math.random() * 1000);
 
 class App extends Component {
-  state = {
-    records: [],
-    query: [
-      {
-        field: "PatentOwner.type",
-        value: "npe"
-      }, {
-        field: "FWDStatus",
-        value: "unpatentable"
-      }
-    ],
-    table: "FWDStatus:unpatentable",
-    fields: [],
-    chartFields: [],
-    currentQuery: [
-      { field: 'Instituted', value: 'true' },
-      { field: 'PatentOwner.type', value: 'npe' }
-    ],
-    chartValues: [['all'], ['all']],
-    chartData: [{
-      title: "loading...",
-      index: 0,
-      data:[{
-          type: ['default'],
-          score: 0,
-          data: [{
-              bin: 'default',
-              count: 0
-            }]
-        }]
-    }],
-    count: 0,
-    totalCount: 0,
-    totalClaims: [],
-    uniqueClaims: [],
-    mode: 'chart',
-    goButton: true,
-    cursor: 0,
-    detailTable: 'out:i_w',
-    details: [],
-    detailCursor: 0,
-    detailCount: 0,
-    detailTotalCount: 0,
-    detailGoButton: true,
-    spinner: true,
-    disableDetails: true
-  }
+  state = init;
 
   componentDidMount() {
     fetch(`${baseUrl}/fields?user=${userID}`)
@@ -78,8 +33,13 @@ class App extends Component {
       .then(records => {
         this.setState({ cursor: records.cursor, count: records.count, records: records.data, totalCount: records.totalCount })
       })
+    this.fetchNewChart('pie').then(chart => this.setState({ chartValues: chart.chartValues, chartData: chart.chartData, spinner: false }));
+  }
+
+  fetchNewChart = (chartType) => {
+    const fetchUrl = chartType === 'pie' ? `${baseUrl}/survival` : `${baseUrl}/survivalarea`;
     return Promise.all(this.state.currentQuery.map((query, index) => {
-      return fetch(`${baseUrl}/survival`, {
+      return fetch(fetchUrl, {
         method: 'post',
         body: JSON.stringify(Object.assign({
           user: userID,
@@ -92,8 +52,8 @@ class App extends Component {
       .then(results => {
         console.log('chartdata received %j', results);
         const chartData = [].concat(...results.map((item, index) => {
-          return [{ title: `${item.title} - with Duplicates`, index, count: item.countTotal, data: item.survivalTotal }]
-            .concat([{ title: `${item.title} - unique only`, index, count: item.countUnique, data: item.survivalUnique }])
+          return [{ chartType: item.chartType, title: `${item.title} - with Duplicates`, index, count: item.countTotal, data: item.survivalTotal }]
+            .concat([{ chartType: item.chartType, title: `${item.title} - unique only`, index, count: item.countUnique, data: item.survivalUnique }])
         }))
         console.log('got initial chart Data\n%j', chartData);
         return Promise.all(this.state.currentQuery.map(item => {
@@ -107,10 +67,9 @@ class App extends Component {
             .then(res => res.json())
         }))
           .then(result => [].concat(...result.map(item => Object.values(item))))
-          .then(chartValues => this.setState({ chartValues, chartData, spinner: false }))
+          .then(chartValues => ({chartValues, chartData}))
       })
   }
-
 
   // Charts -- not implemented yet TODO
   handleChartClick = (event) => {
@@ -274,8 +233,21 @@ class App extends Component {
   switchMode = () => {
     console.log('request for mode switch');
     let mode = this.state.mode;
-    mode === 'table' ? mode = 'chart' : mode = 'table';
+    mode === 'table' ? mode = 'pie' : mode = 'table';
     this.setState({ mode });
+  }
+
+  // Control Area
+  switchChart = () => {
+    console.log('request for chart mode switch');
+    let mode = this.state.mode;
+    mode === 'pie' ? mode = 'line' : mode = 'pie';
+    if (this.state.chartData[0].chartType !== mode) {
+      // the chart data is for the wrong type
+      this.fetchNewChart(mode).then(chart => this.setState({ mode, chartValues:chart.chartValues, chartData:chart.chartData, spinner: false }))
+    } else {
+      this.setState({ mode });
+    }
   }
 
   // MultiEdit -> IN PROGRESS, UNUSED
@@ -291,7 +263,7 @@ class App extends Component {
   render() {
     const viewArea = this.state.mode === 'table'
       ? (<ResultTable records={this.state.records} />)
-      : (<Charts
+      : this.state.mode === 'pie' ? (<Charts
         chartData={this.state.chartData}
         details={this.state.details}
         handleChartClick={this.handleChartClick}
@@ -301,16 +273,16 @@ class App extends Component {
         availableValues={this.state.chartValues}
         selectChartQuery={this.selectChartQuery}
         disableDetails={this.state.disableDetails}
-      />)
-      /* (<TimeCharts
-        chartData={this.state.chartData}
-        handleChartClick={null}
-        availableFields={this.state.chartFields}
-        currentQuery={this.state.currentQuery}
-        updateChart={null}
-        availableValues={this.state.chartValues}
-        selectChartQuery={this.selectChartQuery}
-      />) */
+      />) 
+    : (<TimeCharts
+      chartData={this.state.chartData}
+      handleChartClick={null}
+      availableFields={this.state.chartFields}
+      currentQuery={this.state.currentQuery}
+      updateChart={null}
+      availableValues={this.state.chartValues}
+      selectChartQuery={this.selectChartQuery}
+    />)
     const logo = this.state.spinner ? (
       <modal className="logo-background">
         <div className="App-logo">
@@ -345,6 +317,7 @@ class App extends Component {
           detailCount={this.state.detailCount}
           detailTotalCount={this.state.detailTotalCount}
           disableDetails={this.state.disableDetails}
+          switchChart={this.switchChart}
         />
         <MultiEdit
           testMultiEdit={this.multiEdit}

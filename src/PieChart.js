@@ -21,7 +21,7 @@ const PieChart = (props:{
               theme={VictoryTheme.material}
               data={
                 props.data.map(bin => {
-                  return { x: bin.score, y: bin.count, label: `${bin.type}\n${Math.round(bin.count / props.total * 1000) / 10}%` }
+                  return { x: bin.score, y: bin.data[0].count, label: `${bin.type}\n${Math.round(bin.data[0].count / props.total * 1000) / 10}%` }
                 })
               }
               style={{
@@ -43,7 +43,7 @@ const PieChart = (props:{
               </tr>
               <tr>
                 {props.data.map(item => (
-                  <td key={item.type}>{item.count}</td>
+                  <td key={item.type}>{item.data[0].count}</td>
                 ))}
               </tr>
             </tbody>

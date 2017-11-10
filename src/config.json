@@ -1,0 +1,48 @@
+{ "init" :{
+ "records": [],
+ "query": [
+    {
+     "field": "PatentOwner.type",
+     "value": "npe"
+    }, {
+     "field": "FWDStatus",
+     "value": "unpatentable"
+    }
+  ],
+ "table": "FWDStatus:unpatentable",
+ "fields": [],
+ "chartFields": [],
+ "currentQuery": [
+    {"field": "all","value": "" },
+    {"field": "PatentOwner.type","value": "npe" }
+  ],
+ "chartValues": [["all"], ["all"]],
+ "chartData": [{
+   "title": "loading...",
+   "index": 0,
+   "data":[{
+       "type": ["default"],
+       "score": 0,
+       "data": [{
+           "bin": "default",
+           "count": 0
+          }]
+      }]
+  }],
+ "count": 0,
+ "totalCount": 0,
+ "totalClaims": [],
+ "uniqueClaims": [],
+ "mode": "pie",
+ "goButton": true,
+ "cursor": 0,
+ "detailTable": "out:i_w",
+ "details": [],
+ "detailCursor": 0,
+ "detailCount": 0,
+ "detailTotalCount": 0,
+ "detailGoButton": true,
+ "spinner": true,
+ "disableDetails": true
+
+}}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { VictoryStack, VictoryArea, VictoryLine, VictoryTheme, VictoryContainer, VictoryChart, VictoryLabel, VictoryLegend } from 'victory';
 
-const AreaChart = (props: {
+const InstitutionChart = (props: {
   data: Array<survivalStats>,
   viewSize: number
 }) => {
@@ -11,13 +11,12 @@ const AreaChart = (props: {
       {/* <svg viewBox={`0 0 ${props.viewSize*3} ${props.viewSize}`}> */}
       <VictoryChart
         height={props.viewSize}
-        width={props.viewSize * 16 / 9}
+        width={props.viewSize * 3}
         // containerComponent={<VictoryContainer responsive={false} />}
         theme={VictoryTheme.material}
         style={{
-              labels: { fill: "black" }
+              labels: { fontSize: 30, fill: "black" }
             }}
-            scale={{x:"time"}}
       >
         <VictoryLegend
           title="Legend"
@@ -26,21 +25,19 @@ const AreaChart = (props: {
           orientation="vertical"
           data={props.data.map(item => ({ name: item.type.reduce((acc,curr) => acc.concat('/').concat(curr)) }))}
           style={{
-              labels: { fill: "black" }
+              labels: { fontSize: 30, fill: "black" }
             }}
         />
-        <VictoryStack>
-        {props.data.map(series => (
-          <VictoryArea
+        {props.data.filter(item => item.type.includes('company') || item.type.includes('npe')).map(series => (
+          <VictoryLine
             key={`${series.index}${series.bin}`}
             data={
               series.data.map(item => {
-                return { x: new Date(item.start), y: item.count /*, label: `${Math.round(series.count / props.total * 1000) / 10}%` */ }
+                return { x: item.bin, y: item.count /*, label: `${Math.round(series.count / props.total * 1000) / 10}%` */ }
               })
             }
           />
         ))}
-        </VictoryStack>
       </VictoryChart>
       {/* </svg> */}
       <table /* className="rwd-table" */>
@@ -65,4 +62,4 @@ const AreaChart = (props: {
   )
 }
 
-export default AreaChart;
+export default InstitutionChart;

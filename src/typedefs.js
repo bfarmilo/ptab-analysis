@@ -18,7 +18,7 @@ export type resultSet = {
 export type survivalStats = {
   type: string,
   score: number,
-  count: number
+  data: Array<{bin:string, count: number}>
 }
 
 export type details = {

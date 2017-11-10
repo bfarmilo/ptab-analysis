@@ -67,12 +67,15 @@ const ControlArea = (props: {
           <div>
             <p>showing {props.count}/{props.totalCount} records</p>
           </div>
+          <div className="SwitchView">
+              <button onClick={props.switchMode}>Switch to {tableMode ? 'Chart' : 'Table'} View</button>
+            </div>
         </div>
-      ) : detailSection
-      }
-      <div className="SwitchView">
+      ) : (<div className="SwitchView">
         <button onClick={props.switchMode}>Switch to {tableMode ? 'Chart' : 'Table'} View</button>
-      </div>
+      <button onClick={props.switchChart}>Switch to {props.mode === 'pie' ? 'Timeline' : 'Pie Chart'} View</button>
+    </div>)
+      }
     </div>
   );
 };

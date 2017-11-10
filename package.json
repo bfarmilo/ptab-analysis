@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
+    "eslint": "^4.10.0",
     "react-scripts": "1.0.12"
   },
   "dependencies": {
-    "flow-bin": "^0.53.1",
     "global": "^4.3.2",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
