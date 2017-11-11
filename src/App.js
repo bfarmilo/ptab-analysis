@@ -42,6 +42,7 @@ class App extends Component {
       return fetch(fetchUrl, {
         method: 'post',
         body: JSON.stringify(Object.assign({
+          chartType,
           user: userID,
           query,
           chart: index
@@ -83,33 +84,8 @@ class App extends Component {
     console.log('updating chart %d', chartIdx);
     this.setState({ spinner: true });
     // fetch the new chart data
-    fetch(`${baseUrl}/survival`, {
-      method: 'post',
-      body: JSON.stringify(Object.assign({
-        user: userID,
-        query: this.state.currentQuery[chartIdx],
-        chart: chartIdx
-      }))
-    })
-      .then(res => res.json())
-      // insert the new value into the array
-      .then(results => {
-        const chartData = this.state.chartData.map((item, idx) => {
-          // replace the element if the index matches
-          if (chartIdx === item.index) {
-            // chartData 0 and 2 include duplicates
-            // chartData 1 and 3 is the worst outcome for a given claim 
-            return idx === 0 || idx === 2 ?
-              { title: `${results.title} - with Duplicates`, index: chartIdx, count: results.countTotal, data: results.survivalTotal } :
-              { title: `${results.title} - unique only`, index: chartIdx, count: results.countUnique, data: results.survivalUnique }
-          }
-          // otherwise leave it alone
-          return item;
-        })
-        console.log('got new chart Data\n%j', chartData);
-        // set chartData and spinner:false
-        this.setState({ chartData, spinner: false });
-      })
+    this.fetchNewChart(this.state.mode)
+    .then(chart => this.setState({ chartValues: chart.chartValues, chartData: chart.chartData, spinner: false }))
   }
 
   //Charts
@@ -241,8 +217,9 @@ class App extends Component {
   switchChart = () => {
     console.log('request for chart mode switch');
     let mode = this.state.mode;
-    mode === 'pie' ? mode = 'line' : mode = 'pie';
+    mode === 'pie' ? mode = 'area' : mode = 'pie';
     if (this.state.chartData[0].chartType !== mode) {
+      this.setState({spinner: true})
       // the chart data is for the wrong type
       this.fetchNewChart(mode).then(chart => this.setState({ mode, chartValues:chart.chartValues, chartData:chart.chartData, spinner: false }))
     } else {

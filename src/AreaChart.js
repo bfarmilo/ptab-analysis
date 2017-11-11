@@ -5,7 +5,17 @@ const AreaChart = (props: {
   data: Array<survivalStats>,
   viewSize: number
 }) => {
-  console.log(props.data);
+  const quarters = props.data[0].data.map(item => item.bin);
+  // now for each series in props.data, look at each item in props.data.data
+  // if item.bin matches the current item in quarters, return the count
+  const totals = quarters.map(quarter => props.data.map(series => series.data.filter(item => item.bin === quarter).map(item => item.count)))
+  .map(quarter => quarter.map(item => item[0]).reduce((sum, val) => sum + val));
+  // now store it an an object where each quarter is the key and the value is the total
+  const binTotals = quarters.reduce((result, item, index) => {
+    result[item]= totals[index];
+    return result;
+  }, {});
+  console.log(binTotals);
   return (
     <div className="Chart">
       {/* <svg viewBox={`0 0 ${props.viewSize*3} ${props.viewSize}`}> */}
@@ -35,7 +45,7 @@ const AreaChart = (props: {
             key={`${series.index}${series.bin}`}
             data={
               series.data.map(item => {
-                return { x: new Date(item.start), y: item.count /*, label: `${Math.round(series.count / props.total * 1000) / 10}%` */ }
+                return { x: new Date(item.start), y: Math.round(item.count/binTotals[item.bin] * 1000) / 10 /*, label: `${Math.round(series.count / props.total * 1000) / 10}%` */ }
               })
             }
           />
@@ -48,10 +58,16 @@ const AreaChart = (props: {
           <tr>
             <th />
             {props.data[0].data.map(item => (
-              <th key={item.bin}>{item.bin}</th>
+              <th key={`yr${item.bin}`}>{item.bin.split('_')[0]}</th>
             ))}
           </tr>
-          {props.data.filter(item => item.type.includes('company') || item.type.includes('npe')).map(series => (
+          <tr>
+            <th />
+            {props.data[0].data.map(item => (
+              <th key={`q${item.bin}`}>{item.bin.split('_')[1]}</th>
+            ))}
+          </tr>
+          {props.data.map(series => (
             <tr key={series.type}>
               <td>{series.type}</td>
               {series.data.map(item => (
@@ -59,6 +75,12 @@ const AreaChart = (props: {
               ))}
             </tr>
           ))}
+          <tr>
+            <th>Totals:</th>
+            {totals.map(item => (
+              <th key={item}>{item}</th>
+            ))}
+            </tr>
         </tbody>
       </table>
     </div>

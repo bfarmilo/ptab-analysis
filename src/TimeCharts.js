@@ -15,10 +15,10 @@ const TimeCharts = (props: {
 }) => {
   const viewSize = 400;
   //console.log(props.chartData);
-  const item = props.chartData[0];
   return (
     <div /* className="ChartArea" */>
       <div className="SurvivalCharts">
+      {props.chartData.map((item, index) => (index === 0 || index === 2) ? (
           <div className="SingleChart" key={`chart${item.index}_${item.title}`}>
             <h3>{item.title}</h3>
             <span className="customdropdown">
@@ -45,10 +45,13 @@ const TimeCharts = (props: {
             }
             <button id={`${item.index}_${item.title}`} onClick={props.updateChart}>Go</button>
             <AreaChart
-              data={item.data} //{item.survivalTotal}
+              key={item.title}
+              data={item.data}
               viewSize={viewSize}
             />
           </div>
+        ) : <div key={item.title}/>
+      )}
       </div>
     </div>
   )
