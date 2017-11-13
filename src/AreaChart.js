@@ -79,8 +79,8 @@ const AreaChart = (props: {
           ))}
           <tr>
             <th>Totals:</th>
-            {totals.map(item => (
-              <th key={item}>{item}</th>
+            {totals.map((item,idx) => (
+              <th key={`${idx}`}>{item}</th>
             ))}
             </tr>
         </tbody>
