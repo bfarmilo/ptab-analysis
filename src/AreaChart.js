@@ -24,11 +24,24 @@ const AreaChart = (props: {
         width={props.viewSize * 16 / 9}
         // containerComponent={<VictoryContainer responsive={false} />}
         theme={VictoryTheme.material}
+        animate={{duration: 500}}
         style={{
               labels: { fill: "black" }
             }}
             scale={{x:"time"}}
       >
+        <VictoryStack>
+        {props.data.map(series => (
+          <VictoryArea
+            key={`${series.index}${series.bin}`}
+            data={
+              series.data.map(item => {
+                return { x: new Date(item.start), y: item.count === 0 ? 0 : Math.round(item.count/binTotals[item.bin] * 1000) / 10 /*, label: `${Math.round(series.count / props.total * 1000) / 10}%` */ }
+              })
+            }
+          />
+        ))}
+        </VictoryStack>
         <VictoryLegend
           title="Legend"
           centerTitle
@@ -36,21 +49,10 @@ const AreaChart = (props: {
           orientation="vertical"
           data={props.data.map(item => ({ name: item.type.reduce((acc,curr) => acc.concat('/').concat(curr)) }))}
           style={{
-              labels: { fill: "black" }
+              labels: { fill: "black" },
+              border: { fill: "white", opacity:"0.25"}
             }}
         />
-        <VictoryStack>
-        {props.data.map(series => (
-          <VictoryArea
-            key={`${series.index}${series.bin}`}
-            data={
-              series.data.map(item => {
-                return { x: new Date(item.start), y: Math.round(item.count/binTotals[item.bin] * 1000) / 10 /*, label: `${Math.round(series.count / props.total * 1000) / 10}%` */ }
-              })
-            }
-          />
-        ))}
-        </VictoryStack>
       </VictoryChart>
       {/* </svg> */}
       <table /* className="rwd-table" */>

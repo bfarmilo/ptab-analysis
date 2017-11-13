@@ -256,7 +256,7 @@ class App extends Component {
       handleChartClick={null}
       availableFields={this.state.chartFields}
       currentQuery={this.state.currentQuery}
-      updateChart={null}
+      updateChart={this.updateChart}
       availableValues={this.state.chartValues}
       selectChartQuery={this.selectChartQuery}
     />)
