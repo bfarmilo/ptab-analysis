@@ -3,7 +3,7 @@
 import React from 'react';
 
 const ControlArea = (props: {
-  query: Array<{field:string, value: string}>,
+  query: Array<{ field: string, value: string }>,
   fields: Array<string>,
   count: number,
   totalCount: number,
@@ -21,6 +21,7 @@ const ControlArea = (props: {
   detailTotalCount: number,
   disableDetails: boolean
 }) => {
+  const logChange = (item) => {console.log(item)};
   const tableMode = props.mode === 'table';
   const detailSection = !props.disableDetails ? (
     <div>
@@ -68,13 +69,13 @@ const ControlArea = (props: {
             <p>showing {props.count}/{props.totalCount} records</p>
           </div>
           <div className="SwitchView">
-              <button onClick={props.switchMode}>Switch to {tableMode ? 'Chart' : 'Table'} View</button>
-            </div>
+            <button onClick={props.switchMode}>Switch to {tableMode ? 'Chart' : 'Table'} View</button>
+          </div>
         </div>
       ) : (<div className="SwitchView">
         <button onClick={props.switchMode}>Switch to {tableMode ? 'Chart' : 'Table'} View</button>
-      <button onClick={props.switchChart}>Switch to {props.mode === 'pie' ? 'Timeline' : 'Pie Chart'} View</button>
-    </div>)
+        <button onClick={props.switchChart}>Switch to {props.mode === 'pie' ? 'Timeline' : 'Pie Chart'} View</button>
+      </div>)
       }
     </div>
   );

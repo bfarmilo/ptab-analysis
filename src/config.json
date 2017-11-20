@@ -13,8 +13,8 @@
  "fields": [],
  "chartFields": [],
  "currentQuery": [
-    {"field": "all","value": "" },
-    {"field": "PatentOwner.type","value": "npe" }
+    {"field": "all","value": [""] },
+    {"field": "PatentOwner.type","value": ["npe"] }
   ],
  "chartValues": [["all"], ["all"]],
  "chartData": [{

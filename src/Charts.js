@@ -5,13 +5,14 @@
 import React from 'react'
 import PieChart from './PieChart';
 import type survivalStats from './typedefs';
+import Select from 'react-select';
 
 const Charts = (props: {
   chartData: Array<{ title: string, index: number, count: number, data: Array<survivalStats> }>,
   details: Array<resultSet>,
   handleChartClick: (() => Event),
   availableFields: Array<string>,
-  currentQuery: Array<{field: string, value: string}>,
+  currentQuery: Array<{ field: string, value: string }>,
   updateChart: (() => Event),
   availableValues: Array<Array<string>>,
   selectChartQuery: (() => Event),
@@ -50,39 +51,41 @@ const Charts = (props: {
       <div className="SurvivalCharts">
         {props.chartData.map(item => {
           return (item.count === 0) ?
-          (<div className="SingleChart" key={`chart${item.index}_${item.count}`} />) : 
-          (
-          <div className="SingleChart" key={`chart${item.index}_${item.title}`}>
-            <h3>{item.title}</h3>
-            <span className="customdropdown">
-              <select  name={'field'} id={`${item.title}_${item.index}`} onChange={props.selectChartQuery} value={props.currentQuery[item.index].field}>
-                {props.availableFields.map(val => (
-                  <option key={`ID_${val}`} value={val}>
-                    {val}
-                  </option>
-                ))}
-              </select>
-            </span>
-            {props.currentQuery[item.index].field !== 'all' ?
-              <span className="customdropdown">
-                <select name={'value'} id={`${item.title}_${item.index}`} onChange={props.selectChartQuery} value={props.currentQuery[item.index].value}>
-                  {props.availableValues[item.index].map(val => (
-                    <option key={`ID_${val}`} value={val}>
-                      {val}
-                    </option>
-                  ))}
-                </select>
-              </span>
-              :
-              <span />
-            }
-            <button id={`${item.index}_${item.title}`} onClick={props.updateChart}>Go</button>
-            <PieChart
-              data={item.data}
-              total={item.count}
-              viewSize={viewSize}
-            />
-          </div>)})}
+            (<div className="SingleChart" key={`chart${item.index}_${item.count}`} />) :
+            (
+              <div className="SingleChart" key={`chart${item.index}_${item.title}`}>
+                <h3>{item.title}</h3>
+                <span>
+                <Select
+                  name={'field'}
+                  placeholder="select field for test"
+                  value={props.currentQuery[item.index].field}
+                  options={props.availableFields.map(val => ({ type: 'field', chart: `${item.index}`, label: val, value: val }))}
+                  onChange={props.selectChartQuery}
+                />
+                {props.currentQuery[item.index].field !== 'all' ?
+                  <Select
+                    name={'value'}
+                    id={`${item.title}_${item.index}`}
+                    multi
+                    clearable={false}
+                    placeholder="select field for test"
+                    value={props.currentQuery[item.index].value}
+                    options={props.availableValues[item.index].map(val => ({ type: 'value', chart: `${item.index}`, label: val, value: val }))}
+                    onChange={props.selectChartQuery}
+                  />
+                  :
+                  <span />
+                }
+                <button id={`${item.index}_${item.title}`} onClick={props.updateChart}>Go</button>
+                </span>
+                <PieChart
+                  data={item.data}
+                  total={item.count}
+                  viewSize={viewSize}
+                />
+              </div>)
+        })}
       </div>
       {details}
     </div>

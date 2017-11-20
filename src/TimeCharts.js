@@ -3,12 +3,13 @@
 import React from 'react'
 import AreaChart from './AreaChart';
 import type survivalStats from './typedefs';
+import Select from 'react-select';
 
 const TimeCharts = (props: {
   chartData: Array<{ title: string, index: number, data: Array<survivalStats> }>,
   handleChartClick: (() => Event),
   availableFields: Array<string>,
-  currentQuery: Array<{field: string, value: string}>,
+  currentQuery: Array<{ field: string, value: string }>,
   updateChart: (() => Event),
   availableValues: Array<Array<string>>,
   selectChartQuery: (() => Event),
@@ -18,28 +19,25 @@ const TimeCharts = (props: {
   return (
     <div /* className="ChartArea" */>
       <div className="SurvivalCharts">
-      {props.chartData.map((item, index) => (index === 0 || index === 2) ? (
+        {props.chartData.map((item, index) => (index === 0 || index === 2) ? (
           <div className="SingleChart" key={`chart${item.index}_${item.title}`}>
             <h3>{item.title}</h3>
-            <span className="customdropdown">
-              <select  name={'field'} id={`${item.title}_${item.index}`} onChange={props.selectChartQuery} value={props.currentQuery[item.index].field}>
-                {props.availableFields.map(val => (
-                  <option key={`ID_${val}`} value={val}>
-                    {val}
-                  </option>
-                ))}
-              </select>
-            </span>
+            <Select
+                name={'field'}
+                placeholder="select field for test"
+                value={props.currentQuery[item.index].field}
+                options={props.availableFields.map(val => ({ type: 'field', chart: `${item.index}`, label: val, value: val }))}
+                onChange={props.selectChartQuery}
+              />
             {props.currentQuery[item.index].field !== 'all' ?
-              <span className="customdropdown">
-                <select name={'value'} id={`${item.title}_${item.index}`} onChange={props.selectChartQuery} value={props.currentQuery[item.index].value}>
-                  {props.availableValues[item.index].map(val => (
-                    <option key={`ID_${val}`} value={val}>
-                      {val}
-                    </option>
-                  ))}
-                </select>
-              </span>
+              <Select
+                name={'value'}
+                multi
+                placeholder="select field for test"
+                value={props.currentQuery[item.index].value}
+                options={props.availableValues[item.index].map(val => ({ type: 'value', chart: `${item.index}`, label: val, value: val }))}
+                onChange={props.selectChartQuery}
+              />
               :
               <span />
             }
@@ -50,8 +48,8 @@ const TimeCharts = (props: {
               viewSize={viewSize}
             />
           </div>
-        ) : <div key={item.title}/>
-      )}
+        ) : <div key={item.title} />
+        )}
       </div>
     </div>
   )

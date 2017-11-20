@@ -8,6 +8,7 @@ import TimeCharts from './TimeCharts';
 import MultiEdit from './MultiEdit';
 import { init } from './config.json';
 import './App.css';
+import 'react-select/dist/react-select.css';
 
 //const baseUrl = "https://ptab-server.azurewebsites.net";
 const baseUrl = "https://ptab-mongo-bfarmilo.c9users.io";
@@ -68,7 +69,7 @@ class App extends Component {
             .then(res => res.json())
         }))
           .then(result => [].concat(...result.map(item => Object.values(item))))
-          .then(chartValues => ({chartValues, chartData}))
+          .then(chartValues => ({ chartValues, chartData }))
       })
   }
 
@@ -85,39 +86,49 @@ class App extends Component {
     this.setState({ spinner: true });
     // fetch the new chart data
     this.fetchNewChart(this.state.mode)
-    .then(chart => this.setState({ chartValues: chart.chartValues, chartData: chart.chartData, spinner: false }))
+      .then(chart => this.setState({ chartValues: chart.chartValues, chartData: chart.chartData, spinner: false }))
   }
 
   //Charts
-  selectChartQuery = (event) => {
-    const chartIndex = parseInt(event.target.id.split('_')[1], 10);
-    let newQuery = this.state.currentQuery;
-    console.log('%s change detected for chart %d', event.target.name, chartIndex);
-    if (event.target.name === 'field') {
-      // update the field record
-      newQuery[chartIndex] = { field: event.target.value, value: '' };
-      // If a new field is selected, go fetch allowable values
-      return fetch(`${baseUrl}/chartvalues`, {
-        method: 'post',
-        body: JSON.stringify(Object.assign({
-          user: userID,
-          query: newQuery[chartIndex]
-        }))
-      })
-        .then(res => res.json())
-        .then(result => this.state.chartValues.map((item, index) => {
-          if (index === chartIndex) return result[newQuery[index].field];
-          return item;
-        }))
-        .then(chartValues => {
-          console.log('fetch complete with new data %j', chartValues);
-          this.setState({ currentQuery: newQuery, chartValues });
+  selectChartQuery = (newValue) => {
+    // first check to see if the field is empty
+    console.log(newValue);
+    if (newValue !== '' && newValue.length !== 0) {
+      let newQuery = this.state.currentQuery;
+      // coerce newValue into an array for convenience (to detect types)
+      const selected = Array.isArray(newValue) ? newValue : [newValue];
+      const chartIndex = parseInt(selected[0].chart, 10);
+      console.log('%s change detected for chart %d with values %j', selected[0].type, chartIndex, selected.map(item => item.value));
+      // Pick any item to see whether it is a value or a field that is changing.
+      if (selected[0].type === 'value') {
+        // since values come in as an array of {type='value', chart, label, value} objects
+        // If the values are being changed reflect it in the component. 
+        newQuery[chartIndex].value = selected.map(item => item.value);
+        this.setState({ currentQuery: newQuery });
+      } else {
+        // update the field record. Note fields are single-select only
+        // so just set the value directly
+        newQuery[chartIndex] = { field: newValue.value, value: [''] };
+        // If a new field is selected, go fetch allowable values
+        return fetch(`${baseUrl}/chartvalues`, {
+          method: 'post',
+          body: JSON.stringify(Object.assign({
+            user: userID,
+            query: newQuery[chartIndex]
+          }))
         })
+          .then(res => res.json())
+          .then(result => this.state.chartValues.map((item, index) => {
+            if (index === chartIndex) return result[newQuery[index].field];
+            return item;
+          }))
+          .then(chartValues => {
+            console.log('fetch complete with new data %j', chartValues);
+            this.setState({ currentQuery: newQuery, chartValues });
+          })
+      }
     } else {
-      // If the values are being changed reflect it in the component
-      newQuery[chartIndex].value = event.target.value;
-      // TODO - implement suggested results
-      this.setState({ currentQuery: newQuery });
+      //newValue is blank, so ignore this
     }
   }
 
@@ -219,9 +230,9 @@ class App extends Component {
     let mode = this.state.mode;
     mode === 'pie' ? mode = 'area' : mode = 'pie';
     if (this.state.chartData[0].chartType !== mode) {
-      this.setState({spinner: true})
+      this.setState({ spinner: true })
       // the chart data is for the wrong type
-      this.fetchNewChart(mode).then(chart => this.setState({ mode, chartValues:chart.chartValues, chartData:chart.chartData, spinner: false }))
+      this.fetchNewChart(mode).then(chart => this.setState({ mode, chartValues: chart.chartValues, chartData: chart.chartData, spinner: false }))
     } else {
       this.setState({ mode });
     }
@@ -250,16 +261,16 @@ class App extends Component {
         availableValues={this.state.chartValues}
         selectChartQuery={this.selectChartQuery}
         disableDetails={this.state.disableDetails}
-      />) 
-    : (<TimeCharts
-      chartData={this.state.chartData}
-      handleChartClick={null}
-      availableFields={this.state.chartFields}
-      currentQuery={this.state.currentQuery}
-      updateChart={this.updateChart}
-      availableValues={this.state.chartValues}
-      selectChartQuery={this.selectChartQuery}
-    />)
+      />)
+        : (<TimeCharts
+          chartData={this.state.chartData}
+          handleChartClick={null}
+          availableFields={this.state.chartFields}
+          currentQuery={this.state.currentQuery}
+          updateChart={this.updateChart}
+          availableValues={this.state.chartValues}
+          selectChartQuery={this.selectChartQuery}
+        />)
     const logo = this.state.spinner ? (
       <modal className="logo-background">
         <div className="App-logo">
