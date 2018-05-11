@@ -91,25 +91,25 @@ class App extends Component {
 
   //Charts
   selectChartQuery = (newValue) => {
-    // first check to see if the field is empty
-    console.log(newValue);
+    // first check to see if the field is not empty
     if (newValue !== '' && newValue.length !== 0) {
       let newQuery = this.state.currentQuery;
-      // coerce newValue into an array for convenience (to detect types)
+      // coerce newValue into an array for convenience (since 'type' and chartNo could be properties 
+      // of an Array in the case of values or an Object in the case of fields)
       const selected = Array.isArray(newValue) ? newValue : [newValue];
       const chartIndex = parseInt(selected[0].chart, 10);
       console.log('%s change detected for chart %d with values %j', selected[0].type, chartIndex, selected.map(item => item.value));
       // Pick any item to see whether it is a value or a field that is changing.
       if (selected[0].type === 'value') {
-        // since values come in as an array of {type='value', chart, label, value} objects
         // If the values are being changed reflect it in the component. 
         newQuery[chartIndex].value = selected.map(item => item.value);
         this.setState({ currentQuery: newQuery });
       } else {
         // update the field record. Note fields are single-select only
-        // so just set the value directly
+        // so just set the value directly from the incoming object
+        // don't need to use the coerced Array version
         newQuery[chartIndex] = { field: newValue.value, value: [''] };
-        // If a new field is selected, go fetch allowable values
+        // Now go fetch allowable values for that field to populate the options list
         return fetch(`${baseUrl}/chartvalues`, {
           method: 'post',
           body: JSON.stringify(Object.assign({
@@ -128,7 +128,9 @@ class App extends Component {
           })
       }
     } else {
-      //newValue is blank, so ignore this
+      //the case where newValue is blank
+      //just ignore the attempt to delete the value
+      //hopefully the user will figure out they need to select at least one value
     }
   }
 
